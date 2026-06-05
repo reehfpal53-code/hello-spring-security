@@ -70,6 +70,8 @@ mvn spring-boot:run
 | http://localhost:8080/home | 홈 | 로그인 필요 |
 | http://localhost:8080/products | 상품 목록 | 로그인 필요 |
 | http://localhost:8080/products/add | 상품 등록 | ADMIN |
+| http://localhost:8080/products/{id}/edit | 상품 수정 | ADMIN |
+| http://localhost:8080/user/password | 비밀번호 변경 | 로그인 사용자 |
 | http://localhost:8080/admin/dashboard | 관리자 대시보드 | ADMIN |
 
 ### 4. 초기 계정
@@ -120,9 +122,25 @@ POST /login (email + password)
 |---|---|
 | `/`, `/login`, `/signup`, 정적 리소스 | 누구나 |
 | `/admin/**` | ROLE_ADMIN |
-| `/products/add`, `/products/*/delete` | ROLE_ADMIN |
+| `/products/add`, `/products/*/delete`, `/products/*/edit` | ROLE_ADMIN |
 | `POST /products` | ROLE_ADMIN |
+| `/user/password` | 로그인 사용자 |
 | 그 외 모든 요청 | 로그인 사용자 |
+
+### 상품 페이징 & 검색
+
+- `Pageable`, `Page<T>`: Spring Data JPA가 페이지 번호·크기·정렬을 자동 처리
+- `@Query` JPQL LIKE: `SELECT p FROM Product p WHERE p.name LIKE %:keyword%`
+
+### 더티 체킹 (Dirty Checking)
+
+- `@Transactional` 범위 내에서 조회한 엔티티의 필드를 변경하면 트랜잭션 종료 시 자동 UPDATE
+- `save()` 호출 불필요
+
+### 비밀번호 변경
+
+- `BCryptPasswordEncoder.matches(평문, 해시)`: 저장된 해시와 입력값을 비교
+- 일치하면 새 비밀번호를 `encode()` 후 저장
 
 ### 관리자 대시보드 통계
 
